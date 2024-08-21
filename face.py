@@ -26,12 +26,11 @@ class Face(QWidget):
         self.MOUTH_X = (self.WINDOW_WIDTH - self.MOUTH_WIDTH) // 2
         self.MOUTH_Y = self.EYES_Y + 470
 
-        self.CLOSE_BUTTON_WIDTH = 40
-        self.CLOSE_BUTTON_HEIGHT = 40
-        self.CLOSE_BUTTON_X = self.WINDOW_WIDTH - self.CLOSE_BUTTON_WIDTH
-        self.CLOSE_BUTTON_Y = 0
-
-        self.setStyleSheet("background-color: black;")
+        self.setStyleSheet("""
+                            QWidget {
+                                background-color: rgba(0, 0, 0, 255);
+                            }
+                           """)
         self.resize(self.WINDOW_WIDTH, self.WINDOW_HEIGHT)
     
         self.init_face()
@@ -49,9 +48,6 @@ class Face(QWidget):
             self.start_interacting()
         return super().eventFilter(obj, event)
 
-    def quit_app(self):
-        QApplication.instance().quit()
-
     def init_face(self):
         self.eyes = QLabel(self)
         self.eyes.resize(self.EYES_WIDTH, self.EYES_HEIGHT)
@@ -62,13 +58,6 @@ class Face(QWidget):
         self.eye_lids.resize(self.EYE_LIDS_WIDTH, self.EYE_LIDS_HEIGHT)
         self.eye_lids.setStyleSheet("background-color: black;")
         self.eye_lids.move(self.EYE_LIDS_X, self.EYE_LIDS_Y)
-
-        self.close_button = QPushButton(self)
-        self.close_button.resize(self.CLOSE_BUTTON_WIDTH, self.CLOSE_BUTTON_HEIGHT)
-        self.close_button.setStyleSheet("background-color: red;")
-        self.close_button.move(self.CLOSE_BUTTON_X, self.CLOSE_BUTTON_Y)
-        self.close_button.setFocusPolicy(Qt.NoFocus)
-        self.close_button.clicked.connect(self.quit_app)
 
         self.mouth = QLabel(self)
         self.mouth_gif = QMovie("/root/qt/mouth.gif")
@@ -171,6 +160,9 @@ class Face(QWidget):
         self.speak.stop_running()
         self.blink_animation.stop()
         self.look_animation.stop()
+        self.eyes.move(self.EYES_X, self.EYES_Y)
+        self.eye_lids.move(self.EYE_LIDS_X, self.EYE_LIDS_Y)
+        self.mouth_gif.jumpToFrame(0)
         super().hide()
 
     def show(self):

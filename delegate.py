@@ -9,7 +9,7 @@ class Delegate(QStyledItemDelegate):
         # Draw the line
         painter.save()
         pen = painter.pen()
-        pen.setColor(QColor("gray"))
+        pen.setColor(QColor(255, 255, 255, 50))
         painter.setPen(pen)
         painter.drawLine(option.rect.bottomLeft(), option.rect.bottomRight())
         painter.restore()

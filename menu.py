@@ -1,5 +1,6 @@
-from PyQt5.QtWidgets import QApplication, QWidget, QPushButton
+from PyQt5.QtWidgets import QWidget, QPushButton
 from PyQt5.QtCore import Qt
+from status_bar import StatusBar
 
 class Menu(QWidget):
     def __init__(self):
@@ -7,11 +8,6 @@ class Menu(QWidget):
 
         self.WINDOW_WIDTH = 1280
         self.WINDOW_HEIGHT = 800
-
-        self.CLOSE_BUTTON_WIDTH = 40
-        self.CLOSE_BUTTON_HEIGHT = 40
-        self.CLOSE_BUTTON_X = self.WINDOW_WIDTH - self.CLOSE_BUTTON_WIDTH
-        self.CLOSE_BUTTON_Y = 0
 
         self.BACK_BUTTON_X = 0
         self.BACK_BUTTON_Y = 0
@@ -25,14 +21,15 @@ class Menu(QWidget):
         self.TILE_X_OFFSET = 100
         self.TILE_Y_OFFSET = 80
 
-        self.setStyleSheet("background-color: black;")
+        self.setStyleSheet("""
+                            QWidget {
+                                background-color: rgba(0, 0, 0, 255);
+                            }
+                           """)
         self.resize(self.WINDOW_WIDTH, self.WINDOW_HEIGHT)
 
         self.init_menu()
 
-    def quit_app(self):
-        QApplication.instance().quit()
-        
     def init_menu(self):
         self.tile_row = 1
         self.tile_col = 1
@@ -67,15 +64,11 @@ class Menu(QWidget):
         self.wifi.move(self.TILE_X_OFFSET + ((self.TILE_WIDTH + self.TILE_SPACING_X) * (self.tile_col - 1)), self.TILE_Y_OFFSET + (self.TILE_HEIGHT * (self.tile_row - 1)))
         self.wifi.setFocusPolicy(Qt.NoFocus)
 
+        self.status_bar = StatusBar(self)
+        self.status_bar.move(0, 0)
+
         self.back_button = QPushButton(self)
         self.back_button.resize(self.BACK_BUTTON_WIDTH, self.BACK_BUTTON_HEIGHT)
         self.back_button.setStyleSheet("background-color: red;")
         self.back_button.move(self.BACK_BUTTON_X, self.BACK_BUTTON_Y)
         self.back_button.setFocusPolicy(Qt.NoFocus)
-
-        self.close_button = QPushButton(self)
-        self.close_button.resize(self.CLOSE_BUTTON_WIDTH, self.CLOSE_BUTTON_HEIGHT)
-        self.close_button.setStyleSheet("background-color: red;")
-        self.close_button.move(self.CLOSE_BUTTON_X, self.CLOSE_BUTTON_Y)
-        self.close_button.setFocusPolicy(Qt.NoFocus)
-        self.close_button.clicked.connect(self.quit_app)

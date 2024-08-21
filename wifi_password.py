@@ -1,6 +1,7 @@
+import re
 from PyQt5.QtWidgets import QApplication, QWidget, QPushButton, QLineEdit
-from PyQt5.QtGui import QFocusEvent, QFont
-from PyQt5.QtCore import Qt, QRect, QPropertyAnimation
+from PyQt5.QtGui import QFont
+from PyQt5.QtCore import Qt, QProcess
 from virtual_keyboard import VirtualKeyboard
 
 class WiFiPassword(QWidget):
@@ -25,11 +26,6 @@ class WiFiPassword(QWidget):
         self.BACK_BUTTON_X = 0
         self.BACK_BUTTON_Y = 0
 
-        self.CLOSE_BUTTON_WIDTH = 40
-        self.CLOSE_BUTTON_HEIGHT = 40
-        self.CLOSE_BUTTON_X = self.WINDOW_WIDTH - self.CLOSE_BUTTON_WIDTH
-        self.CLOSE_BUTTON_Y = 0
-
         self.CONNECT_BUTTON_WIDTH = 100
         self.CONNECT_BUTTON_HEIGHT = 50
         self.CONNECT_BUTTON_X = 590
@@ -40,7 +36,11 @@ class WiFiPassword(QWidget):
         self.KEYBOARD_X = 0
         self.KEYBOARD_Y = 450
 
-        self.setStyleSheet("background-color: black;")
+        self.setStyleSheet("""
+                            QWidget {
+                                background-color: rgba(0, 0, 0, 255);
+                            }
+                           """)
         self.resize(self.WINDOW_WIDTH, self.WINDOW_HEIGHT)
 
         self.init_wifi_password()
@@ -63,13 +63,6 @@ class WiFiPassword(QWidget):
         self.keyboard = VirtualKeyboard(self, input_field=self.password_line)
         self.keyboard.resize(self.KEYBOARD_WIDTH, self.KEYBOARD_HEIGHT)
         self.keyboard.move(self.KEYBOARD_X, self.KEYBOARD_Y)
-
-        self.close_button = QPushButton(self)
-        self.close_button.resize(self.CLOSE_BUTTON_WIDTH, self.CLOSE_BUTTON_HEIGHT)
-        self.close_button.setStyleSheet("background-color: red;")
-        self.close_button.move(self.CLOSE_BUTTON_X, self.CLOSE_BUTTON_Y)
-        self.close_button.setFocusPolicy(Qt.NoFocus)
-        self.close_button.clicked.connect(self.quit_app)
 
         self.back_button = QPushButton(self)
         self.back_button.resize(self.BACK_BUTTON_WIDTH, self.BACK_BUTTON_HEIGHT)
@@ -94,14 +87,13 @@ class WiFiPassword(QWidget):
         self.connect_button.clicked.connect(self.connect_wifi)
 
     def connect_wifi(self):
-        self.hide()
-        self.keyboard.hide()
-        self.password_line.clear
+        self.connect_button.setDisabled(True)
+        process = QProcess()
+        process.start()
 
     def show(self, ssid: str):
-        self.ssid_label.setText("Enter password for " + ssid)
+        self.ssid = ssid
+        self.ssid_label.setText("Enter password for " + self.ssid)
         super().show()
         self.keyboard.show()
 
-    def quit_app(self):
-        QApplication.instance().quit()
