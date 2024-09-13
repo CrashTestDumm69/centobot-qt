@@ -1,30 +1,31 @@
-from PyQt5.QtWidgets import QApplication, QWidget, QLabel, QPushButton
+from PyQt5.QtWidgets import QWidget, QLabel
 from PyQt5.QtCore import Qt, QPropertyAnimation, QRect, QSequentialAnimationGroup, QPauseAnimation, QTimer, QEvent, QSize, QThread
 from PyQt5.QtGui import QPixmap, QMovie
-from mouth import Speak, Connect, Listen
+from mouth import Listen
+
 
 class Face(QWidget):
     def __init__(self):
         super().__init__()
 
-        self.WINDOW_WIDTH = 1280
-        self.WINDOW_HEIGHT = 800
+        self.WINDOW_WIDTH = 1024
+        self.WINDOW_HEIGHT = 600
 
-        self.EYES_HEIGHT = 420
-        self.EYES_WIDTH = 900
-        self.EYES_X = (self.WINDOW_WIDTH - self.EYES_WIDTH) // 2
-        self.EYES_Y = ((self.WINDOW_HEIGHT - self.EYES_HEIGHT)) // 4
+        self.EYES_HEIGHT = 500
+        self.EYES_WIDTH = 234
+        self.EYES_X = (self.WINDOW_WIDTH - self.EYES_WIDTH) // 4
+        self.EYES_Y = ((self.WINDOW_HEIGHT - self.EYES_HEIGHT)) // 2
 
         self.EYE_LIDS_X = self.EYES_X
         self.EYE_LIDS_Y = self.EYES_Y
-        self.EYE_LIDS_WIDTH = self.EYES_WIDTH
-        self.EYE_LIDS_HEIGHT = 0
-        self.EYE_LIDS_CLOSE_HEIGHT = self.EYES_HEIGHT // 2
+        self.EYE_LIDS_HEIGHT = self.EYES_HEIGHT
+        self.EYE_LIDS_WIDTH = 0
+        self.EYE_LIDS_CLOSE_WIDTH = self.EYES_WIDTH // 2
 
-        self.MOUTH_WIDTH = 435
-        self.MOUTH_HEIGHT = 150
-        self.MOUTH_X = (self.WINDOW_WIDTH - self.MOUTH_WIDTH) // 2
-        self.MOUTH_Y = self.EYES_Y + 470
+        self.MOUTH_WIDTH = 150
+        self.MOUTH_HEIGHT = 435
+        self.MOUTH_X = (self.WINDOW_WIDTH - self.MOUTH_WIDTH) * 2 // 3
+        self.MOUTH_Y = (self.WINDOW_HEIGHT - self.MOUTH_HEIGHT) // 2
 
         self.setStyleSheet("""
                             QWidget {
@@ -32,21 +33,12 @@ class Face(QWidget):
                             }
                            """)
         self.resize(self.WINDOW_WIDTH, self.WINDOW_HEIGHT)
-    
+
         self.init_face()
 
     def start_interacting(self):
         self.speak.run()
         self.speak_timer.start()
-
-    def eventFilter(self, obj, event):
-        if event.type() == QEvent.MouseButtonPress:
-            self.long_press_timer.start()
-        elif event.type() == QEvent.MouseButtonRelease:
-            self.long_press_timer.stop()
-        elif event.type() == QEvent.MouseButtonDblClick:
-            self.start_interacting()
-        return super().eventFilter(obj, event)
 
     def init_face(self):
         self.eyes = QLabel(self)
@@ -86,32 +78,32 @@ class Face(QWidget):
         self.look_animation.start()
 
     def setup_look_animation(self):
-        look_offset = 150
+        look_offset = 80
         duration = 200
 
         pause1 = QPauseAnimation(2000)
         move1 = QPropertyAnimation(self.eyes, b"geometry")
         move1.setDuration(duration)
         move1.setStartValue(QRect(self.EYES_X, self.EYES_Y, self.EYES_WIDTH, self.EYES_HEIGHT))
-        move1.setEndValue(QRect(self.EYES_X - look_offset, self.EYES_Y, self.EYES_WIDTH, self.EYES_HEIGHT))
-        
+        move1.setEndValue(QRect(self.EYES_X, self.EYES_Y - look_offset, self.EYES_WIDTH, self.EYES_HEIGHT))
+
         move2 = QPropertyAnimation(self.eyes, b"geometry")
         move2.setDuration(duration)
-        move2.setStartValue(QRect(self.EYES_X - look_offset, self.EYES_Y, self.EYES_WIDTH, self.EYES_HEIGHT))
+        move2.setStartValue(QRect(self.EYES_X, self.EYES_Y - look_offset, self.EYES_WIDTH, self.EYES_HEIGHT))
         move2.setEndValue(QRect(self.EYES_X, self.EYES_Y, self.EYES_WIDTH, self.EYES_HEIGHT))
-        
+
         pause2 = QPauseAnimation(800)
-        
+
         move3 = QPropertyAnimation(self.eyes, b"geometry")
         move3.setDuration(duration)
         move3.setStartValue(QRect(self.EYES_X, self.EYES_Y, self.EYES_WIDTH, self.EYES_HEIGHT))
-        move3.setEndValue(QRect(self.EYES_X + look_offset, self.EYES_Y, self.EYES_WIDTH, self.EYES_HEIGHT))
-        
+        move3.setEndValue(QRect(self.EYES_X, self.EYES_Y + look_offset, self.EYES_WIDTH, self.EYES_HEIGHT))
+
         move4 = QPropertyAnimation(self.eyes, b"geometry")
         move4.setDuration(duration)
-        move4.setStartValue(QRect(self.EYES_X + look_offset, self.EYES_Y, self.EYES_WIDTH, self.EYES_HEIGHT))
+        move4.setStartValue(QRect(self.EYES_X, self.EYES_Y + look_offset, self.EYES_WIDTH, self.EYES_HEIGHT))
         move4.setEndValue(QRect(self.EYES_X, self.EYES_Y, self.EYES_WIDTH, self.EYES_HEIGHT))
-        
+
         self.look_animation.addAnimation(pause1)
         self.look_animation.addAnimation(move1)
         self.look_animation.addAnimation(move2)
@@ -128,32 +120,32 @@ class Face(QWidget):
         blink1 = QPropertyAnimation(self.eye_lids, b"geometry")
         blink1.setDuration(duration)
         blink1.setStartValue(QRect(self.EYE_LIDS_X, self.EYE_LIDS_Y, self.EYE_LIDS_WIDTH, self.EYE_LIDS_HEIGHT))
-        blink1.setEndValue(QRect(self.EYE_LIDS_X, self.EYE_LIDS_Y, self.EYE_LIDS_WIDTH, self.EYE_LIDS_CLOSE_HEIGHT))
-        
+        blink1.setEndValue(QRect(self.EYE_LIDS_X, self.EYE_LIDS_Y, self.EYE_LIDS_CLOSE_WIDTH, self.EYE_LIDS_HEIGHT))
+
         blink2 = QPropertyAnimation(self.eye_lids, b"geometry")
         blink2.setDuration(duration)
-        blink2.setStartValue(QRect(self.EYE_LIDS_X, self.EYE_LIDS_Y, self.EYE_LIDS_WIDTH, self.EYE_LIDS_CLOSE_HEIGHT))
+        blink2.setStartValue(QRect(self.EYE_LIDS_X, self.EYE_LIDS_Y, self.EYE_LIDS_CLOSE_WIDTH, self.EYE_LIDS_HEIGHT))
         blink2.setEndValue(QRect(self.EYE_LIDS_X, self.EYE_LIDS_Y, self.EYE_LIDS_WIDTH, self.EYE_LIDS_HEIGHT))
-        
+
         pause2 = QPauseAnimation(800)
 
         blink3 = QPropertyAnimation(self.eye_lids, b"geometry")
         blink3.setDuration(duration)
         blink3.setStartValue(QRect(self.EYE_LIDS_X, self.EYE_LIDS_Y, self.EYE_LIDS_WIDTH, self.EYE_LIDS_HEIGHT))
-        blink3.setEndValue(QRect(self.EYE_LIDS_X, self.EYE_LIDS_Y, self.EYE_LIDS_WIDTH, self.EYE_LIDS_CLOSE_HEIGHT))
-        
+        blink3.setEndValue(QRect(self.EYE_LIDS_X, self.EYE_LIDS_Y, self.EYE_LIDS_CLOSE_WIDTH, self.EYE_LIDS_HEIGHT))
+
         blink4 = QPropertyAnimation(self.eye_lids, b"geometry")
         blink4.setDuration(duration)
-        blink4.setStartValue(QRect(self.EYE_LIDS_X, self.EYE_LIDS_Y, self.EYE_LIDS_WIDTH, self.EYE_LIDS_CLOSE_HEIGHT))
+        blink4.setStartValue(QRect(self.EYE_LIDS_X, self.EYE_LIDS_Y, self.EYE_LIDS_CLOSE_WIDTH, self.EYE_LIDS_HEIGHT))
         blink4.setEndValue(QRect(self.EYE_LIDS_X, self.EYE_LIDS_Y, self.EYE_LIDS_WIDTH, self.EYE_LIDS_HEIGHT))
-        
+
         self.blink_animation.addAnimation(pause1)
         self.blink_animation.addAnimation(blink1)
         self.blink_animation.addAnimation(blink2)
         self.blink_animation.addAnimation(pause2)
         self.blink_animation.addAnimation(blink3)
         self.blink_animation.addAnimation(blink4)
-        
+
         self.blink_animation.finished.connect(self.look_animation.start)
 
     def hide(self):
