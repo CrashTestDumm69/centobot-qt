@@ -1,43 +1,38 @@
 #!/usr/bin/env python3
 
+
 import sys
-from face import Face
-from PyQt5.QtWidgets import QApplication, QWidget
-from PyQt5.QtCore import QTimer
-from PyQt5.QtGui import QFont
+from PyQt5.QtWidgets import QApplication, QLabel, QVBoxLayout, QWidget
+from PyQt5.QtGui import QMovie
 
 
-class LoadScreen(QWidget):
-
+class GifPlayer(QWidget):
     def __init__(self):
         super().__init__()
+        self.init_ui()
+        self.resize(1024, 600)
 
-        self.WINDOW_WIDTH = 600
-        self.WINDOW_HEIGHT = 1024
+    def init_ui(self):
+        # Set up the layout
+        layout = QVBoxLayout()
 
-        self.setStyleSheet("background-color: blue;")
-        self.resize(self.WINDOW_WIDTH, self.WINDOW_HEIGHT)
+        # QLabel to display the GIF
+        self.gif_label = QLabel(self)
 
+        # Load and start the GIF
+        self.movie = QMovie("face.gif")  # Replace with the path to your GIF
+        self.gif_label.setMovie(self.movie)
+        self.gif_label.resize(1024, 600)
+        self.gif_label.move(0, 0)
+        self.movie.start()
 
-class Application:
-
-    def __init__(self):
-        app = QApplication([sys.argv])
-        app.setFont(QFont("Comic Sans", 50))
-
-        self.load_screen = LoadScreen()
-        self.load_screen.show()
-
-        QTimer.singleShot(500, self.initialize)
-
-        sys.exit(app.exec_())
-
-    def initialize(self):
-        self.face = Face()
-
-        self.load_screen.hide()
-        self.face.show()
+        # Set layout and window title
+        self.setLayout(layout)
+        self.setWindowTitle("GIF Player")
 
 
-if __name__ == "__main__":
-    app = Application()
+if __name__ == '__main__':
+    app = QApplication(sys.argv)
+    player = GifPlayer()  # Set the window size
+    player.show()
+    sys.exit(app.exec_())
